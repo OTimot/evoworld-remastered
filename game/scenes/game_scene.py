@@ -4,7 +4,8 @@ import random
 
 from engine.scene import Scene
 from engine.camera import Camera
-from engine.settings import WHITE, GREEN, GOLD, BLUE, PANEL
+from engine.settings import WHITE, GREEN, GOLD, PANEL
+from game.entities.player import Player
 
 
 class GameScene(Scene):
@@ -19,8 +20,7 @@ class GameScene(Scene):
         self.world_width = 3000
         self.world_height = 3000
 
-        self.player = pygame.Rect(1500, 1500, 44, 44)
-        self.player_speed = 280
+        self.player = Player(app, 1500, 1500)
         self.time = 0
 
         self.tile_size = 80
@@ -30,16 +30,13 @@ class GameScene(Scene):
 
     def load_vegetation_images(self):
         images = []
-
         for key, image in self.app.assets.images.items():
             if key.startswith("sprites/vegetation/"):
                 images.append(image)
-
         return images
 
     def generate_vegetation(self):
         random.seed(42)
-
         if not self.vegetation_images:
             return
 
@@ -71,32 +68,15 @@ class GameScene(Scene):
     def update(self, dt):
         self.time += dt
 
-        keys = self.app.input.keys
-        dx = 0
-        dy = 0
-
-        if keys[pygame.K_w]:
-            dy -= 1
-        if keys[pygame.K_s]:
-            dy += 1
-        if keys[pygame.K_a]:
-            dx -= 1
-        if keys[pygame.K_d]:
-            dx += 1
-
-        vec = pygame.Vector2(dx, dy)
-
-        if vec.length_squared() > 0:
-            vec = vec.normalize()
-            self.player.x += int(vec.x * self.player_speed * dt)
-            self.player.y += int(vec.y * self.player_speed * dt)
+        self.player.update(dt)
 
         self.player.x = max(0, min(self.world_width - self.player.width, self.player.x))
         self.player.y = max(0, min(self.world_height - self.player.height, self.player.y))
+        self.player.update_rect()
 
         sw, sh = self.app.window.get_size()
         self.camera.resize(sw, sh)
-        self.camera.follow(self.player, dt)
+        self.camera.follow(self.player.rect, dt)
 
     def draw_ground(self, screen):
         tile = self.tile_size
@@ -124,23 +104,11 @@ class GameScene(Scene):
 
             screen.blit(img, (sx - img.get_width() // 2, sy - img.get_height()))
 
-    def draw_player(self, screen):
-        rect = self.camera.apply(self.player)
-
-        pygame.draw.ellipse(screen, (0, 0, 0), (rect.x - 8, rect.y + 34, rect.width + 16, 14))
-        pygame.draw.ellipse(screen, BLUE, rect)
-        pygame.draw.ellipse(screen, (110, 210, 255), (rect.x + 8, rect.y + 6, rect.width - 16, rect.height - 12))
-
-        pygame.draw.circle(screen, WHITE, (rect.centerx - 8, rect.centery - 5), 5)
-        pygame.draw.circle(screen, WHITE, (rect.centerx + 8, rect.centery - 5), 5)
-        pygame.draw.circle(screen, (0, 0, 0), (rect.centerx - 7, rect.centery - 5), 2)
-        pygame.draw.circle(screen, (0, 0, 0), (rect.centerx + 9, rect.centery - 5), 2)
-
     def draw_hud(self, screen):
         sw, sh = screen.get_size()
 
         pygame.draw.rect(screen, PANEL, (0, 0, sw, 70))
-        title = self.font.render("EvoWorld Remastered - Vegetation Test", True, GOLD)
+        title = self.font.render("EvoWorld Remastered - Custom Player", True, GOLD)
         screen.blit(title, (20, 15))
 
         info = self.small_font.render(
@@ -153,7 +121,7 @@ class GameScene(Scene):
         if self.app.debug:
             debug = (
                 f"DEBUG | FPS: {int(self.app.clock.get_fps())} | "
-                f"Player: {self.player.x}, {self.player.y} | "
+                f"Player: {int(self.player.x)}, {int(self.player.y)} | "
                 f"Camera: {int(self.camera.x)}, {int(self.camera.y)} | "
                 f"Assets: {len(self.vegetation_images)}"
             )
@@ -164,5 +132,5 @@ class GameScene(Scene):
         screen.fill((5, 10, 15))
         self.draw_ground(screen)
         self.draw_vegetation(screen)
-        self.draw_player(screen)
+        self.player.draw(screen, self.camera)
         self.draw_hud(screen)

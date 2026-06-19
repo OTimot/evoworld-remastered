@@ -1,11 +1,10 @@
 # Changelog
 
-## v0.1.3 - Asset Manager 2.0
+## v0.1.4 - Custom Player
 
-- Új AssetManager rendszer
-- Automatikus assets mappa szkennelés
-- Képbetöltés
-- Hangbetöltés
-- Font regisztráció
-- Missing image fallback
-- Asset debug summary a főmenü alján
+- Saját EvoWorld karakter sprite
+- Idle animáció
+- Walk animáció
+- Player class
+- SpriteAnimation rendszer
+- A régi kék kör karakter lecserélve
