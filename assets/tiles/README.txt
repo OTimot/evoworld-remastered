@@ -1,1 +1,1 @@
-Ide kerülnek majd az ingyenes vagy saját assetek.
+Ide kerülnek az tiles assetek.\n

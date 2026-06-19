@@ -1,0 +1,1 @@
+Ide kerülnek az effects assetek.\n

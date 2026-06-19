@@ -14,5 +14,6 @@ RED = (230, 80, 80)
 GOLD = (255, 210, 90)
 PANEL = (22, 28, 42)
 PANEL_LIGHT = (34, 44, 64)
+TEXT_MUTED = (165, 180, 195)
 
 DEBUG = False

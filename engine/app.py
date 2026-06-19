@@ -13,7 +13,11 @@ from game.scenes.game_scene import GameScene
 class App:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init()
+
+        try:
+            pygame.mixer.init()
+        except pygame.error:
+            pass
 
         self.window = Window()
         self.screen = self.window.screen
@@ -22,9 +26,11 @@ class App:
         self.debug = False
 
         self.input = InputManager()
-        self.assets = AssetManager()
-        self.scenes = SceneManager()
 
+        self.assets = AssetManager("assets")
+        self.assets.initialize()
+
+        self.scenes = SceneManager()
         self.scenes.add_scene("menu", MenuScene(self))
         self.scenes.add_scene("game", GameScene(self))
         self.scenes.set_scene("menu")
@@ -32,7 +38,6 @@ class App:
     def run(self):
         while self.running:
             dt = min(self.clock.tick(FPS) / 1000, 0.05)
-
             events = pygame.event.get()
 
             for event in events:
